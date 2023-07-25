@@ -1,6 +1,7 @@
 import NextAuth from "next-auth/next";
 import { prisma } from "@/app/lib/db/db";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+
 import { CredentialsProvider } from "next-auth/providers";
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github" 
@@ -16,7 +17,7 @@ export const authOptions = {
             clientId:process.env.GITHUB_ID,
             clientSecret:process.env.GITHUB_SECRET,
         }),
-        CredentialProvider({
+        CredentialsProvider({
             name: "credentials",
             Credentials : {
                 email : { label: "Email", type: "string", placeholder: "marvellous obatale"},
