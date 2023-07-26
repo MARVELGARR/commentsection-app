@@ -1,12 +1,12 @@
 import NextAuth from "next-auth/next";
 import { prisma } from "@/app/lib/db/db";
+import  CredentialsProvider  from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-
-import { CredentialsProvider } from "next-auth/providers";
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github" 
 
 export const authOptions = {
+    
     adapter: PrismaAdapter(prisma),
     providers:[
         GitHubProvider({
@@ -19,18 +19,19 @@ export const authOptions = {
         }),
         CredentialsProvider({
             name: "credentials",
-            Credentials : {
+            credentials : {
                 email : { label: "Email", type: "string", placeholder: "marvellous obatale"},
                 password : { label: "Password", type: "password" },
                 username : { label: "username", type: "string", placeholder: "marvel"}
             },
             async authorize(credentials){
                 const user = { id:1, name: "John", email: "john@hmail.com"}
+                return user;
             }
-        })
+        }),
     ],
-    secrete: process.env.SECRETE,
-    secssion:{
+    secret: process.env.SECRETE,
+    session:{
         strategy:"jwt",
     },
     debug: process.env.NODE_ENV === "development",
