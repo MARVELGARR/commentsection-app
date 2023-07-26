@@ -10,7 +10,26 @@ export default function Register() {
 
     const registerUser = async (e) =>{
         e.preventDefault();
-        const 
+        try{
+
+            const newUser = await fetch("api/register", {
+                method: "POST",
+                headers:{
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({name, email, password})
+            })
+            if(newUser.ok){
+                const res = await newUser.json()
+                console.log("user was created successfully", res)
+            }
+            else{
+                console.error("Failed to create post", newUser.statusText);
+            }
+        }
+        catch(error){
+            console.error("Failed to create new user ", error)
+        }
     }
 
     return (
