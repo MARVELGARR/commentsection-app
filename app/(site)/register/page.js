@@ -8,9 +8,30 @@ export default function Register() {
     const [email, setEmail] = useState("")
     const [password, Setpassword] = useState("")
 
+
+    
     const registerUser = async (e) =>{
         e.preventDefault();
-        const 
+        try{
+
+            const newUser = await fetch("api/register", {
+                method: "POST",
+                headers:{
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({name, email, password})
+            })
+            if(newUser.ok){
+                const res = await newUser.json()
+                console.log("user was created successfully", res)
+            }
+            else{
+                console.error("Failed to create post", newUser.statusText);
+            }
+        }
+        catch(error){
+            console.error("Failed to create new user ", error)
+        }
     }
 
     return (
@@ -94,7 +115,7 @@ export default function Register() {
                     type="submit"
                     className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                    Sign in
+                    Sign up
                     </button>
                 </div>
             </form>

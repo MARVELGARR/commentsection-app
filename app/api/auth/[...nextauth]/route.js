@@ -3,7 +3,9 @@ import { prisma } from "@/app/lib/db/db";
 import  CredentialsProvider  from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google"
-import GitHubProvider from "next-auth/providers/github" 
+import GitHubProvider from "next-auth/providers/github"
+import bcrypt from "bcrypt"
+import { NextResponse } from "next/server";
 
 export const authOptions = {
     
@@ -25,8 +27,33 @@ export const authOptions = {
                 username : { label: "username", type: "string", placeholder: "marvel"}
             },
             async authorize(credentials){
-                const user = { id:1, name: "John", email: "john@hmail.com"}
-                return user;
+                //to check wether the user entered his/her email address and password
+                if(!credentials.email || !credentials.password){
+                    return console.error("Invalid credentials")
+                }
+
+                //to check is the user already exists
+                const user = await prisma.user.findUnique({
+                    where:{
+                        email: credentials.email
+                    }
+                })
+
+                // to check if no user was found
+                if(!user || !user.hashedPassword){
+                    return NextResponse.json({message: "email has not been registered"})
+                }
+
+                // check if password matches
+                const passwordMatches = await bcrypt.compare(credentials.password, user.hashedPassword)
+
+                // to check if it the password does not match
+                if(!passwordMatches) {
+                    return NextResponse.json({message:" password does not match"})
+                }
+                console.log(" logged in successfully");
+                return user
+
             }
         }),
     ],
