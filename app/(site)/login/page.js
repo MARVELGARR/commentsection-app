@@ -5,24 +5,41 @@ import { toast } from 'react-hot-toast'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 
+
+export const metadata = {
+    title: 'Login',
+    description: 'login section',
+}
 
 
 function Login() {
 
+    
     const [data, setData] = useState({
         email:"",
         password:"",
     })
 
     const router = useRouter()
-    const session = useSession()
+    const {session, status} = useSession({
+        redirect: true,
+        onAuthenticated() {
+            redirect("/dashboard")
+        }
+    })
 
     useEffect(()=>{
-        if(session?.status === "authenticated"{
-            router.push("/")
-        })
-    })
+        if(status ==="loading"){
+            return
+        }
+        if(status === "authenticated"){
+            router.push("/dashboard")
+        }
+        
+    },[status])
+    
 
     const login = async (e) =>{
         e.preventDefault();
@@ -49,7 +66,6 @@ function Login() {
 
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img className="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company"/>
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
         </div>
 

@@ -8,7 +8,7 @@ function User() {
 
   return (
     <div className=''>
-        {JSON.stringify(session)}
+      {JSON.stringify(session)}
     </div>
   )
 }
