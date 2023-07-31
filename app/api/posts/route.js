@@ -1,18 +1,21 @@
 import { prisma } from "@/app/lib/db/db";
 import { NextResponse } from "next/server";
-import { getSession } from "next-auth/react";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
+
 
 export async function POST(req){
 
     try{
-        const session = await getSession({req});
+        const session = await getServerSession(authOptions)
+        console.log(session)
 
-        if(!session?.user?.email){
+        if(!session){
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
         const content =  await req.json();
         const { body } = content;
-        const user = await prisma.post.findUnique({
+        const user = await prisma.user.findUnique({
             where: {
                 email: session.user.email
             }
@@ -31,6 +34,7 @@ export async function POST(req){
                 }
             }
         })
+        return NextResponse.json(newPost)
     }
     catch(error){
         console.error("Error creating post:", error);

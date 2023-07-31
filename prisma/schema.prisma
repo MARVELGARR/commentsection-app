@@ -17,6 +17,8 @@ model User {
   emailVerified DateTime?
   image String?
   hashedPassword String?
+  access_token String?
+  token_type String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   posts      Post[]

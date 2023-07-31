@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 
 
 export const metadata = {
-    title: 'Dashboard',
-    description: 'User Profile',
+  title: 'Dashboard',
+  description: 'User Profile',
 }
 
 function dashboard() {

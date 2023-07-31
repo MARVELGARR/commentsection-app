@@ -1,6 +1,8 @@
-import  getServerSession  from 'next-auth/next';
+
+import  { getServerSession }  from 'next-auth/next';
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation';
+import Post from './components/post';
 
 
 
@@ -12,16 +14,19 @@ export const metadata = {
 
 export default async function Home() {
 
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
-  if(session){
+  if(!session?.user){
     redirect("/login?callbackUrl=/")
   }
 
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <pre className=''>{JSON.stringify(session?.user)}</pre>
-      <div>sxsxsx</div>
+      <div className='text-black'>{JSON.stringify(session?.user)}</div>
+      <div>
+        <Post/>
+      </div>
     </main>
   )
 }

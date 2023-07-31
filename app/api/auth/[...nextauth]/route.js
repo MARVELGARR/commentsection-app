@@ -57,6 +57,16 @@ export const authOptions = {
             }
         }),
     ],
+    callbacks : {
+        async jwt({ token, account}){
+            return { ...token, ...account}
+        },
+        async session({ session, token, account }){
+            session.account = token
+            return session
+        }
+    },
+   
     secret: process.env.SECRETE,
     session:{
         strategy:"jwt",
