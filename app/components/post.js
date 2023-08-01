@@ -17,7 +17,7 @@ function Post() {
   const accessToken = session?.account?.access_token;
   const createPost =  async (e)=>{
     e.preventDefault();
-
+  
     try{
 
       const newPost = await fetch("/api/posts",{
@@ -44,13 +44,18 @@ function Post() {
   return (
     <div className="">
         <form onSubmit={createPost} className="flex justify-start gap-5">
+          <fielset className="">
 
-            <img
-              src={session?.user?.image}
-              className="w-10 h-10 rounded-full"
-            />
-            <textarea onChange={(e)=>setText(e.target.value)} value={text} className=""></textarea>
-            <button type="submit" className=" p-2 rounded-xl text-white bg-cyan-950">Send</button>
+            <textarea onChange={(e)=>setText(e.target.value)} value={text} className=" rounded-lg"></textarea>
+            <div className=''>
+
+              <img
+                src={session?.user?.image}
+                className="w-10 h-10 rounded-full"
+              />
+              <button type="submit" className=" p-2 rounded-xl text-white bg-cyan-950">Send</button>
+            </div>
+          </fielset>
         </form>
     </div>
   )

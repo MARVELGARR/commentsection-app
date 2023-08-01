@@ -8,16 +8,15 @@ export async function POST(req){
 
     try{
         const session = await getServerSession(authOptions)
-        console.log(session)
 
         if(!session){
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
         const content =  await req.json();
-        const { body } = content;
+        const { text } = content;
         const user = await prisma.user.findUnique({
             where: {
-                email: session.user.email
+                email: session?.user?.email
             }
         })
         if (!user) {
@@ -25,14 +24,10 @@ export async function POST(req){
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
         const newPost = await prisma.post.create({
-            data:{
-                body,
-                author:{
-                    connect:{
-                        id: user.id,
-                    }
-                }
-            }
+            data: {
+                body: text,
+                authorId: user.id,
+            },
         })
         return NextResponse.json(newPost)
     }
