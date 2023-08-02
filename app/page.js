@@ -3,6 +3,7 @@ import  { getServerSession }  from 'next-auth/next';
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation';
 import Post from './components/post';
+import Feeds from './components/feed';
 
 
 
@@ -20,10 +21,14 @@ export default async function Home() {
     redirect("/login?callbackUrl=/")
   }
 
+  
+
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className='text-black'>{JSON.stringify(session?.user)}</div>
+    <main className="flex flex-col min-h-screen p-5">
+      <div className="">
+        <Feeds/>
+      </div>
       <div>
         <Post/>
       </div>

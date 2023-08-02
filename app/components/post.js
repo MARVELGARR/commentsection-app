@@ -41,13 +41,15 @@ function Post() {
     }
   }
 
+  
+
   return (
     <div className="">
         <form onSubmit={createPost} className="flex justify-start gap-5">
-          <fielset className="">
+          <fielset className="flex flex-col">
 
-            <textarea onChange={(e)=>setText(e.target.value)} value={text} className=" rounded-lg"></textarea>
-            <div className=''>
+            <textarea  className=" w-full rounded-lg" onChange={(e)=>setText(e.target.value)} value={text}></textarea>
+            <div className='flex justify-between mt-5'>
 
               <img
                 src={session?.user?.image}

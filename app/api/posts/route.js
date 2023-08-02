@@ -36,3 +36,28 @@ export async function POST(req){
         return NextResponse.json({error:"Error creating post", error}, {status: 500})
     }
 }
+
+export async function GET(){
+
+    try{
+        const session = await getServerSession(authOptions)
+
+        if(!session){
+            return NextResponse.json({error:"User not authenticated"}, {status:401})
+        }
+        else{
+
+            const allPost = await prisma.post.findMany({
+                include:{
+                    author: true,
+                }
+            })
+            return NextResponse.json(allPost)
+        }
+
+    }
+    catch(error){
+        console.error("Error Getting Posts", error);
+        return NextResponse.json({ error: 'Error getting posts' }, { status: 500 })
+    }
+}
