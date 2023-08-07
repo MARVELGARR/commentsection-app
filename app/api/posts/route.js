@@ -61,3 +61,25 @@ export async function GET(){
         return NextResponse.json({ error: 'Error getting posts' }, { status: 500 })
     }
 }
+
+export async function DELETE(req, {params}){
+    
+    if(req.method){
+        try{
+            const { postId } = params
+            await prisma.post.delete({
+                where:{
+                    postId
+                }
+            })
+            return NextResponse.json("post deleted successfully")
+        }
+        catch(error){
+            return NextResponse.json({ error: 'Error deleting posts' }, { status: 500 })
+        }
+    }
+    else{
+        console.error("Error Getting Post", error);
+        return NextResponse.error(405, 'Method Not Allowed');
+    }
+}

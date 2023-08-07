@@ -25,11 +25,11 @@ export default async function Home() {
 
 
   return (
-    <main className="flex flex-col min-h-screen p-5">
-      <div className="">
+    <main className="flex w-screen flex-col min-h-screen bg-cyan-50 px-3 gap-3">
+      <div className=" w-full  flex flex-col mt-5">
         <Feeds/>
       </div>
-      <div>
+      <div className='bg-white shadow-md p-4 rounded-xl flex justify-center items-center'>
         <Post/>
       </div>
     </main>

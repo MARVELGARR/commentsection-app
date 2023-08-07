@@ -26,7 +26,7 @@ function Post() {
           "content-type": "application/json",
           "Authorization": `Bearer ${accessToken}`
         },
-        body: JSON.stringify({text})
+        body: JSON.stringify({ text })
       })
       if(newPost.ok){
         const res = await newPost.json();
@@ -44,21 +44,21 @@ function Post() {
   
 
   return (
-    <div className="">
-        <form onSubmit={createPost} className="flex justify-start gap-5">
-          <fielset className="flex flex-col">
+    <div className=" w-full">
+      <form onSubmit={createPost} className="flex w-full justify-start gap-5">
+        <fielset className="flex w-full flex-col">
 
-            <textarea  className=" w-full rounded-lg" onChange={(e)=>setText(e.target.value)} value={text}></textarea>
-            <div className='flex justify-between mt-5'>
+          <textarea  className=" h-24 w-full rounded-lg" onChange={(e)=>setText(e.target.value)} value={text} placeholder='Add a comment'></textarea>
+          <div className='flex justify-between mt-5'>
 
-              <img
-                src={session?.user?.image}
-                className="w-10 h-10 rounded-full"
-              />
-              <button type="submit" className=" p-2 rounded-xl text-white bg-cyan-950">Send</button>
-            </div>
-          </fielset>
-        </form>
+            <img
+              src={session?.user?.image}
+              className=" w-12 h-12 rounded-full"
+            />
+            <button type="submit" className=" p-2 rounded-xl text-white bg-blue-950/80 w-24">Send</button>
+          </div>
+        </fielset>
+      </form>
     </div>
   )
 }
