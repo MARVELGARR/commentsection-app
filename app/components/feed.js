@@ -79,30 +79,10 @@ function Feeds() {
         }
     };
 
-    const getPostBody = async (postId) =>{
+    const getPostBody = (postId) =>{       
+        const BODY = feeds.find((item)=> item.id == postId)?.body || "";
+        setEditText({...editText, [postId]: BODY});
         
-        try{
-
-            const post = await fetch(`/api/posts/${postId}`,{
-                method: "GET",
-                headers : {
-                    "content-type" : "application/json"
-                },
-            })
-            if(post.ok){
-                const res = await post.json();
-                const BODY = res.find((item)=> item.id == postId)?.body || "";
-                setEditText({...editText, [postId]: BODY});
-                
-                console.log("post and  body gotten sucessfully ",res);
-            }
-            else{
-                console.error("Error geting post and body", post.statusText)
-            }
-        }
-        catch(error){
-            console.error('Error getting post and body', error);
-        }
     }
 
     const editPost = async (postId)=>{
@@ -113,15 +93,15 @@ function Feeds() {
                 headers:{
                     "content-type": "application/json",
                 },
-                body: JSON.stringify({ text })  
+                body: JSON.stringify({ text: editText[postId] }), // Use the correct body property here  
             })
             if(post.ok){
                 const res = await post.json();
-                setEditMode(false);
+                setEditMode(true);
                 console.log("post updated", res);
             }
             else{
-                console.error("Error updating post", res.statusText);
+                console.error("Error updating post", post.statusText);
             }
         }
         catch(error){
@@ -132,9 +112,12 @@ function Feeds() {
 
     
     useEffect(()=>{
-        getAllPost();    
-        
+        getAllPost();          
     },[])
+
+    useEffect(()=>{
+        getAllPost();
+    },[editMode])
 
     return (
         <>
@@ -214,7 +197,7 @@ function Feeds() {
                                     <div className="">{feed?.author.name.split(" ")[0].trim()}</div>
                                     <div className="">{feed.formattedCreatedAt}</div>
                                 </div>
-                                <input className='' value={editText} onChange={(e)=>setEditText({ ...editText, [feed.id]: e.target.value })} />
+                                <input className='' value={editText[feed.id] || ""} onChange={(e)=>setEditText({ ...editText, [feed.id]: e.target.value })} />
                                 <div className='flex justify-between ml-5 items-center'>
                                     <div className="flex justify-between items-center w-full -mb-5">
 
