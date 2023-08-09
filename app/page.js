@@ -2,7 +2,6 @@
 import  { getServerSession }  from 'next-auth/next';
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation';
-import Post from './components/post';
 import Feeds from './components/feed';
 
 
@@ -28,9 +27,6 @@ export default async function Home() {
     <main className="flex w-screen flex-col min-h-screen bg-cyan-50 px-3 gap-3">
       <div className=" w-full  flex flex-col mt-5">
         <Feeds/>
-      </div>
-      <div className='bg-white shadow-md p-4 rounded-xl flex justify-center items-center'>
-        <Post/>
       </div>
     </main>
   )

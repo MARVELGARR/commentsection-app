@@ -1,10 +1,11 @@
+'use client'
 import React, { useState } from 'react'
 
 function Testing() {
 
-    const [store, setStore] = useState()
+    const [store, setStore] = useState([])
 
-    const student = [
+    const students = [
         { id:1, name: 'John', email: 'john@example.com', age: 13, sex: 'male', score: 1 },
         { id:2, name: 'wale', email: 'wale@example.com', age: 23, sex: 'female', score: 2 },
         { id:3, name: 'kunle', email: 'kunle@example.com', age: 14, sex: 'male', score: 5 },
@@ -18,9 +19,23 @@ function Testing() {
         { id:11, name: 'phonni', email: 'phonni@example.com', age: 43, sex: 'female', score: 21 },
     ]
 
+    const run = () => {
+        const answer = students.filter((student)=>{
+            return(
+                student.age === 13
+            )
+        }).map((student)=>{
+            return(
+               <></> 
+            )
+        })
+        setStore(answer)
+        console.log(store)
+    }
+
   return (
     <div>
-
+        <button onClick={run} className="b-2 bg-slate-600 text-white">submit</button>
     </div>
   )
 }
