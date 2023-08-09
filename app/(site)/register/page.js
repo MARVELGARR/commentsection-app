@@ -1,6 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "react-hot-toast"
+import { Metadata } from "next"
+
+export const metadata = {
+    title: 'Register',
+    description: 'Register section',
+}
 
 export default function Register() {
 
@@ -23,10 +30,10 @@ export default function Register() {
             })
             if(newUser.ok){
                 const res = await newUser.json()
-                console.log("user was created successfully", res)
+                toast.success("user registered successfully")
             }
             else{
-                console.error("Failed to create post", newUser.statusText);
+                toast.error("user registration failed")
             }
         }
         catch(error){

@@ -16,8 +16,8 @@ export const authOptions = {
             clientSecret:process.env.GITHUB_SECRET,
         }),
         GoogleProvider({
-            clientId:process.env.GITHUB_ID,
-            clientSecret:process.env.GITHUB_SECRET,
+            clientId:process.env.GOOGLE_ID,
+            clientSecret:process.env.GOOGLE_SECRET,
         }),
         CredentialsProvider({
             name: "credentials",
@@ -57,6 +57,16 @@ export const authOptions = {
             }
         }),
     ],
+    callbacks : {
+        async jwt({ token, account}){
+            return { ...token, ...account}
+        },
+        async session({ session, token, account }){
+            session.account = token
+            return session
+        }
+    },
+   
     secret: process.env.SECRETE,
     session:{
         strategy:"jwt",

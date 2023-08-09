@@ -1,22 +1,64 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
+import { toast } from 'react-hot-toast'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
+
+
+export const metadata = {
+    title: 'Login',
+    description: 'login section',
+}
+
 
 function Login() {
 
+    
     const [data, setData] = useState({
         email:"",
         password:"",
     })
+
+    const router = useRouter()
+    const {session, status} = useSession({
+        redirect: true,
+        onAuthenticated() {
+            redirect("/dashboard")
+        }
+    })
+
+    useEffect(()=>{
+        if(status ==="loading"){
+            return
+        }
+        if(status === "authenticated"){
+            router.push("/dashboard")
+        }
+        
+    },[status])
+    
 
     const login = async (e) =>{
         e.preventDefault();
         try{
 
             signIn("credentials", {...data, redirect:false})
+            .then((callback)=>{
+                if(callback?.error){
+                    toast.error(callback.error)
+                }
+                if(callback?.ok && !callback?.error){
+
+                    toast.success("Logged in")
+                }
+            })
+                       
         }
         catch(error){
-            console.log("could not sign in", error);
+            toast.error("someting went wrong") 
         }
     }
 
@@ -24,7 +66,6 @@ function Login() {
 
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img className="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company"/>
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
         </div>
 
@@ -53,11 +94,24 @@ function Login() {
                     <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
                 </div>
             </form>
-
-            <p className="mt-10 text-center text-sm text-gray-500">
-                Not a member?
-                <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day free trial</a>
-            </p>
+            <div className='flex w-full gap-2 mt-3 items-center justify-center'>
+                <button onClick={()=>signIn("github")} className="w-full flex bg-white border-black border-4 rounded-xl items-center justify-center">
+                    <img 
+                        src="/svg/github.svg"
+                        alt="github"
+                        className="w-10 h-10"
+                    />
+                    <p className="">github</p>
+                </button>
+                <button onClick={()=>signIn("google")} className="w-full flex rounded-xl border-black border-4 justify-center items-center">
+                    <img 
+                        src="/svg/google.svg"
+                        alt="goggle"
+                        className="w-10 h-10"
+                    />
+                    <p>google</p>
+                </button>
+            </div>
         </div>
     </div>
   )
