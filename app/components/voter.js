@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { increment, decrement } from '../redux/features/counter/counterSlice';
 import { useSession } from 'next-auth/react';
+import { getAllPost } from './getAllPost';
 
 function Voters({ postId, initialCount }) {
   const dispatch = useDispatch();
@@ -25,8 +26,8 @@ function Voters({ postId, initialCount }) {
       });
 
       if (post.ok) {
-        const updatedCount = await response.json(); // Get the updated count from the server response
-        setCounts({ ...counts, [postId]: updatedCount }); // Update the local state with the updated count for the specific post
+        const updatedCount = await post.json(); // Get the updated count from the server response
+        setCounts({ ...counts, [postId]: updatedCount.score }); // Update the local state with the updated count for the specific post
         console.log("Voted successfully. Updated count:", updatedCount);
       } else {
         console.error('Failed to vote', post.status, post.statusText);
@@ -61,6 +62,7 @@ function Voters({ postId, initialCount }) {
 
   useEffect(() => {
     getScore(postId);
+    
   }, []);
 
   return (

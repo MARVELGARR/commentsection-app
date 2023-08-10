@@ -19,58 +19,54 @@ export async function GET(req){
     }
 }
 
-export async function PATCH(req, {params}){
-
-    if(req.method){
-
-        const content = await req.json();
-        const { count, text } = content;
-        const { postId } = params;
-        
-        if(count){
-
-            try{
-                    
-                const updatePost = await prisma.post.update({
-                    where:{
-                        id: postId,
-                    },
-                    data:{
-                        score: count
-                    }                
-                });
-                if(!updatePost){
-                    return NextResponse.json({message:"No score"},{status: 404})
-                }
-                return NextResponse.json(updatePost)
+export async function PATCH(req, { params }) {
+    if (req.method === 'PATCH') {
+      const content = await req.json();
+      const { count, text } = content;
+      const { postId } = params;
+  
+      try {
+        if (count !== undefined) {
+            const updatePost = await prisma.post.update({
+                where: {
+                    id: postId,
+                },
+                data: {
+                    score: count,
+                },
+            });
+  
+            if (!updatePost) {
+                return NextResponse.json({ message: "No score found" }, { status: 404 });
             }
-            catch(error){
-                return NextResponse.json({error:"Error updating score", error}, {status: 500})
+    
+            return NextResponse.json(updatePost);
+        } 
+        else if (text !== undefined) {
+            const updatePost = await prisma.post.update({
+                where: {
+                id: postId,
+                },
+                data: {
+                body: text,
+                },
+            });
+  
+            if (!updatePost) {
+                return NextResponse.json({ message: "No body found" }, { status: 404 });
             }
+  
+            return NextResponse.json(updatePost);
+        } 
+        else {
+            return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
         }
-        else if(text){
-            try{
-                const content = await req.json();
-                const { text } = content;
-                const { postId } = params;
-                const updatePost = await prisma.post.update({
-                    where:{
-                        id: postId,
-                    },
-                    data:{
-                        body: text
-                    }                
-                });
-                if(!updatePost){
-                    return NextResponse.json({message:"No body"},{status: 404})
-                }
-                return NextResponse.json(updatePost)
-            }
-            catch(error){
-                return NextResponse.json({error:"Error updating body", error}, {status: 500})
-            }
-
+        } catch (error) {
+            return NextResponse.json({ error: "Error updating post", message: error.message }, { status: 500 });
         }
+    } 
+    else {
+      return NextResponse.error(405, "Method Not Allowed");
     }
 }
 
