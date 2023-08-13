@@ -22,11 +22,11 @@ function Testing() {
     const run = () => {
         const answer = students.filter((student)=>{
             return(
-                student.age === 13
+                student.score === 13
             )
         }).map((student)=>{
             return(
-               <></> 
+                student.name
             )
         })
         setStore(answer)

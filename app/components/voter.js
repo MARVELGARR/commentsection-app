@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { increment, decrement } from '../redux/features/counter/counterSlice';
 import { useSession } from 'next-auth/react';
 import { getAllPost } from './getAllPost';
+import { toast } from 'react-hot-toast';
 
 function Voters({ postId, initialCount }) {
   const dispatch = useDispatch();
@@ -28,11 +29,14 @@ function Voters({ postId, initialCount }) {
       if (post.ok) {
         const updatedCount = await post.json(); // Get the updated count from the server response
         setCounts({ ...counts, [postId]: updatedCount.score }); // Update the local state with the updated count for the specific post
+        toast.success("voted ")
         console.log("Voted successfully. Updated count:", updatedCount);
       } else {
+        toast.error("Voting failed")
         console.error('Failed to vote', post.status, post.statusText);
       }
     } catch (error) {
+      toast.error("somewhere went wrong")
       console.error('Error voting', error);
     }
   };
