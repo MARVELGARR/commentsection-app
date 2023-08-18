@@ -55,14 +55,16 @@ model Post {
 }
 
 model Comment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  comment   String
-  post      Post     @relation(fields: [postId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  postId    String   @db.ObjectId
-  userId    String   @db.ObjectId
-  score     Int      @default(0)
-  
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment       String
+  post          Post     @relation(fields: [postId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  postId        String   @db.ObjectId
+  userId        String   @db.ObjectId
+  score         Int      @default(0)
+  parentReply   Comment? @relation("ReplyToComment", fields: [parentReplyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentReplyId String?  @db.ObjectId
+  replies       Comment[] @relation("ReplyToComment")
 }

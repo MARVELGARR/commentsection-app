@@ -6,14 +6,14 @@ import { getServerSession } from "next-auth";
 
 export async function POST(req){
 
+    const content =  await req.json();
+    const { comment, postId, commentReply, commentId } = content;
+    const session = await getServerSession(authOptions)
+    
     try{
-        const session = await getServerSession(authOptions)
-
         if(!session){
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
-        const content =  await req.json();
-        const { comment, postId } = content;
         const user = await prisma.user.findUnique({
             where: {
                 email: session?.user?.email
@@ -23,14 +23,36 @@ export async function POST(req){
 
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
-        const newPost = await prisma.comment.create({
-            data: {
-                comment: comment,
-                userId: user.id,
-                postId: postId,
-            },
-        })
-        return NextResponse.json(newPost)
+        if( comment && postId !== undefined){
+
+            const newPost = await prisma.comment.create({
+                data: {
+                    comment: comment,
+                    userId: user.id,
+                    postId: postId,
+                },
+            })
+            if(!newPost){
+                return NextResponse.json({ error: "could not finde comment"}, {stateus: 404})
+            }
+            return NextResponse.json(newPost)
+        }
+        else if(commentReply && commentId !== undefined){
+            const newComment = await prisma.comment.create({
+                data: {
+                    comment: commentReply,
+                    userId: user.id,
+                    postId: commentId,
+                },
+            })
+            if(!newComment){
+                return NextResponse.json({ error:" Comment not created"},{status: 404})
+            }
+            return NextResponse.json(newComment)
+        }
+        else{
+            return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
+        }
     }
     catch(error){
         console.error("Error creating comment:", error);
@@ -42,7 +64,16 @@ export async function GET(req){
     
     if(req.method){
         try{
-            const content =  await prisma.comment.findMany();
+            const content =  await prisma.comment.findMany({
+                include:{
+                    user: true,
+                    post: {
+                        include:{
+                            author: true
+                        }
+                    }
+                }
+            });
             return NextResponse.json(content)
         }
         catch(error){

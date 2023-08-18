@@ -1,8 +1,11 @@
 import { prisma } from "@/app/lib/db/db";
 import { NextResponse } from "next/server";
+import { AuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 
 
 export async function GET(req){
+
     
     if(req.method){
         try{
@@ -46,4 +49,42 @@ export async function DELETE(req, { params }){
         console.error("Error Deleting Post", error);
         return NextResponse.error(405, 'Method Not Allowed');
     }
+}
+
+export async function POST(req, { params }){
+    
+    try{
+        
+        const session = await getServerSession(authOptions);
+
+        if(!session){
+            return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
+        }
+
+        const content = await req.json();
+        const { commentReply, commentId } = content;
+
+        const parentComment = await prisma.comment.findUnique({
+            where: {
+                id: commentId
+            }
+        })
+        if(!user){
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const newComment = await prisma.comment.create({
+            data: {
+                comment: commentReply,
+                userId: user.id,
+                postId: commentId,
+            },
+        })
+        return NextResponse.json(newComment)
+    }
+    catch(error){
+        console.error("Error creating comment:", error);
+        return NextResponse.json({ error: "Error replying to comment", details: error.message }, { status: 500 });
+    }
+
 }
