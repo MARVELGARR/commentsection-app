@@ -1,6 +1,6 @@
 import { prisma } from "@/app/lib/db/db";
 import { NextResponse } from "next/server";
-import { AuthOptions } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 
 
@@ -56,28 +56,42 @@ export async function POST(req, { params }){
     try{
         
         const session = await getServerSession(authOptions);
+        const { commentId } = params;
 
         if(!session){
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
 
         const content = await req.json();
-        const { commentReply, commentId } = content;
+        const { commentReply } = content;
 
         const parentComment = await prisma.comment.findUnique({
             where: {
                 id: commentId
             }
         })
-        if(!user){
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        if(!parentComment) {
+            return NextResponse.json({ error: "Comment not found" }, { status: 404 });
         }
+
+        const post = await prisma.post.findUnique({
+            where:{
+                id: parentComment.postId
+            }
+        })
+        
+        const user = await prisma.user.findUnique({
+            where: {
+                email : session?.user?.email
+            }
+        })
 
         const newComment = await prisma.comment.create({
             data: {
                 comment: commentReply,
-                userId: user.id,
-                postId: commentId,
+                user: { connect: { id: user?.id } },
+                post: { connect: { id: parentComment.postId } },
+                parentReply: { connect: { id: parentComment.id } },
             },
         })
         return NextResponse.json(newComment)
@@ -87,4 +101,58 @@ export async function POST(req, { params }){
         return NextResponse.json({ error: "Error replying to comment", details: error.message }, { status: 500 });
     }
 
+}
+
+export async function PATCH(req, { params }) {
+
+    const session = await getServerSession(authOptions);
+    
+    if (req.method === 'PATCH') {
+        const { commentId } = params;
+        const content = await req.json();
+        const { count, comment } = content;
+  
+        try {
+            if (count !== undefined) {
+                const updatePost = await prisma.comment.update({
+                    where: {
+                        id: commentId,
+                    },
+                    data: {
+                        score: count,
+                    },
+                });
+
+                if (!updatePost) {
+                    return NextResponse.json({ message: "No score found" }, { status: 404 });
+                }
+        
+                return NextResponse.json(updatePost);
+            } 
+            else if (comment !== undefined) {
+                const updatePost = await prisma.comment.update({
+                    where: {
+                    id: commentId,
+                    },
+                    data: {
+                    comment: comment,
+                    },
+                });
+
+                if (!updatePost) {
+                    return NextResponse.json({ message: "No body found" }, { status: 404 });
+                }
+
+                return NextResponse.json(updatePost);
+            } 
+            else {
+                return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
+            }
+        } catch (error) {
+            return NextResponse.json({ error: "Error updating post", message: error.message }, { status: 500 });
+        }
+    }   
+    else {
+      return NextResponse.error(405, "Method Not Allowed");
+    }
 }

@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { getAllPost } from './getAllPost';
 import { getAllComments } from './getAllPost';
 import { toast } from 'react-hot-toast';
+import CommentVote from './commentVote';
 
 
 
@@ -33,7 +34,9 @@ function Feeds() {
     const [commentReplyMode, setCommentReplyMode] = useState({ })
     const [currentlyCommentReplyingCommentId, setCurrentlyCommentReplyingCommentId] = useState(null)
     const [commentReply, setCommentReply] = useState("")
-
+    const [editComment, setEditComment] = useState({})
+    const [commentEditMode, setCommentEditMode] = useState({})
+    const [currentlyEditedCommentId, setCurrentlyEditedCommentId] = useState(null)
 
 
     const fetchData = async () => {
@@ -62,6 +65,17 @@ function Feeds() {
             getPostBody(postId);
             setCurrentlyEditedPostId(postId); // Set the currently edited post ID
             setEditMode({mode: true, id: postId}); // Enable edit mode
+        }
+    };
+
+    const editCommentToggle = (commentId) => {
+        if (currentlyEditedCommentId == commentId) {
+            setCurrentlyEditedCommentId(commentId); // Turn off edit mode for this post
+            setCommentEditMode({mode: false, id: commentId});
+        } else {
+            getCommentBody(commentId);
+            setCurrentlyEditedCommentId(commentId); // Set the currently edited post ID
+            setCommentEditMode({mode: true, id: commentId}); // Enable edit mode
         }
     };
     
@@ -99,6 +113,10 @@ function Feeds() {
         const BODY = feeds.find((item)=> item.id == postId)?.body || "";
         setEditText({...editText, [postId]: BODY});
         
+    }
+    const getCommentBody = (commentId) =>{
+        const BODY = comments.find((item)=> item.id == commentId)?.comment || " ";
+        setEditComment({...editComment, [commentId]: BODY});
     }
 
 
@@ -157,6 +175,34 @@ function Feeds() {
         }
     }
 
+    const handleEditComment = async (commentId)=>{
+    
+        try{
+            const comment = await fetch(`/api/comment/${commentId}`, {
+                method: 'PATCH',
+                headers:{
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({ comment: editComment[commentId] }), // Use the correct body property here  
+            })
+            if(comment.ok){
+                fetchComment();
+                toast.success("comment updated successfully")
+                setCommentEditMode((prev)=> !prev)
+                const res = await comment.json();
+                console.log("post updated", res);
+            }
+            else{
+                toast.error("Error updating post")
+                console.error("Error updating comment", comment.statusText);
+            }
+        }
+        catch(error){
+            toast.error("something went wrong")
+            console.error("Error updating comment", error);
+        }
+    }
+
     const createPost = async (e) => {
         e.preventDefault();
         try {
@@ -176,8 +222,8 @@ function Feeds() {
             console.log('post was created successfully', res);
 
           } else {
-            toast.success("Error creating post")
-            console.error('Failed to create post', newPost.statusText);
+                toast.success("Error creating post")
+                console.error('Failed to create post', newPost.statusText);
           }
         } catch (error) {
             toast.error("something went wrong")
@@ -219,10 +265,11 @@ function Feeds() {
                 headers:{
                     "content-type": "application/json",
                 },
-                body: JSON.stringify({ commentReply, commentId })
+                body: JSON.stringify({ commentReply })
             })
             if(reply.ok){
                 toast.success("Replied successfull")
+                setCommentReplyMode({})
                 fetchComment();
                 console.log("replied successfully", reply)
             }
@@ -238,14 +285,20 @@ function Feeds() {
     }
 
 
+
+    
+
+
+
+
     return (
-        <div className='flex flex-col gap-4'>
-            <div className="flex flex-col gap-3">
+        <div className='flex flex-col gap-2'>
+            <div className="flex flex-col gap-2">
 
                 {feeds.map((feed) => {
                     return (
                         <div key={feed.id} className=" flex flex-col">
-                            <div className="flex w-full shadow-md px-4 py-2 rounded-xl flex-col bg-white text-gray-900">
+                            <div className="flex w-full gap-2 shadow-md px-4 py-2 rounded-xl flex-col bg-white text-gray-900">
 
                                 <div className='flex gap-5'>
                                     <img
@@ -262,7 +315,7 @@ function Feeds() {
                                         <div className='flex justify-between ml-5 items-center'>
                                             <div className="flex justify-between items-center w-full -mb-5">
                                                 <Voters postId={feed.id} />
-                                                <button onClick={() => editPost(feed?.id)} className="h-10 p-2 text-sm text-white bg-blue-800 rounded-md cursor-pointer">Update</button>
+                                                <button onClick={()=>editPost(feed?.id)} className="h-10 p-2 text-sm text-white bg-blue-800 rounded-md cursor-pointer">Update</button>
                                             </div>
                                         </div>
                                     </div>
@@ -288,10 +341,10 @@ function Feeds() {
                                                     { session?.account?.id !== feed?.author?.id ? (<button onClick={() => handleReplyToggle(feed?.id)} className="flex gap-2 cursor-pointer">
                                                         <img
                                                             src="/svg/reply.svg"
-                                                            className='w-5 h-5'
+                                                            className='w-3 h-3'
                                                             alt="reply icon"
                                                         />
-                                                        <div className='font-bold text-green-500'>Reply</div>
+                                                        <div className='font-bold text-green-500  text-sm'>Reply</div>
                                                     </button>):(<div className=''></div>)}
                                                 { session?.account?.id == feed.author.id ? ( <button onClick={()=>editToggle(feed.id)} className='flex items-center cursor-pointer'>
                                                         <Image
@@ -312,7 +365,7 @@ function Feeds() {
                                 )}
                             </div>
                             { replyMode.mode && replyMode.id == feed.id ? ( <div>
-                                <div className=' mt-3 flex gap-2 items-center'>
+                                <div className=' flex gap-2 items-center'>
                                     <img 
                                         src={session?.user?.image}
                                         className='w-8 h-8 rounded-full'
@@ -333,7 +386,7 @@ function Feeds() {
                                         return (
                                             <>
 
-                                                <div className='flex px-4 rounded-xl shadow-md bg-white flex-col'>
+                                                <div className='flex gap-2 px-4 rounded-xl shadow-md bg-white flex-col'>
                                                     {feed.id == comment.postId ? (<div className="flex mt-3  flex-col gap-3">
                                                         <div className='flex gap-3'>
                                                             <img 
@@ -342,19 +395,48 @@ function Feeds() {
                                                             />
                                                             <div className=''>{comment?.formattedCreatedAt}</div>
                                                         </div>
+                                                        { commentEditMode.mode && commentEditMode.id == comment.id ? (
+                                                            <div className="flex w-full py-2 rounded-xl flex-col bg-white text-gray-900">
+                                                                <textarea row={1} className=' h-10 rounded-lg resize-none' value={ editComment[comment.id] || ""} onChange={(e) => setEditComment({ ...editComment, [comment.id]: e.target.value })} />
+                                                                <div className='flex justify-between ml-5 items-center'>
+                                                                    <div className="flex justify-end items-center w-full mt-3">
+                                                                        <button onClick={()=>handleEditComment(comment?.id)} className="h-10 p-2 text-sm text-white bg-blue-800 rounded-md cursor-pointer">Update</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            
+                                                        
+                                                        <div>
 
-                                                        <div key={comment.id} className=''><span className=" text-purple-900 font-bold">@{comment?.post?.author?.name.split(" ")[0].trim()}</span> {comment.comment}</div>
-                                                        <div className="flex justify-between items-center">
-                                                            <Voters postId={comment.id} />
-                                                            { session?.account?.id !== feed?.author?.id ? (<button onClick={() => handleCommentReplyToggle(comment?.id)} className="flex gap-2 cursor-pointer">
-                                                                <img
-                                                                    src="/svg/reply.svg"
-                                                                    className='w-5 h-5'
-                                                                    alt="reply icon"
-                                                                />
-                                                                <div className='font-bold text-green-500'>Reply</div>
-                                                            </button>):(<div className=''></div>)}
-                                                        </div>
+                                                            <div key={comment.id} className=''><span className=" text-purple-900 font-bold">@{comment?.post?.author?.name.split(" ")[0].trim()}</span> {comment.comment}</div>
+                                                                <div className="flex justify-between items-center  h-10">
+                                                                <CommentVote commentId={comment.id}/>
+                                                                <div className='flex gap-2 items-center'>
+
+                                                                    { session?.account?.id !== comment?.author?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
+                                                                        <Image
+                                                                            src="/images/edit.png"
+                                                                            alt="edit icon"
+                                                                            height={140}
+                                                                            width={140}
+                                                                            className="w-4 h-4"
+                                                                        />
+                                                                        <span className='font-bold text-blue-800'>Edit</span>
+                                                                    </button>):(<div className=''></div>)}
+                                                                    { session?.account?.id !== comment?.author?.id ? (<button onClick={() => handleCommentReplyToggle(comment?.id)} className="flex gap-2 cursor-pointer">
+                                                                        <img
+                                                                            src="/svg/reply.svg"
+                                                                            className='w-3 h-3'
+                                                                            alt="reply icon"
+                                                                        />
+                                                                        <div className='font-bold text-green-500 text-sm'>Reply</div>
+                                                                    </button>):(<div className=''></div>)}
+                                                                </div>
+                                                            </div>
+                                                        </div>)}
+                                                        
+
                                                     </div>):(<div key={comment.id}></div>)}
                                                 </div>
                                                 { commentReplyMode.mode && commentReplyMode.id == comment.id ? ( <div>
