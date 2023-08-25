@@ -50,6 +50,7 @@ export async function GET(){
             const allPost = await prisma.post.findMany({
                 include:{
                     author: true,
+                    comments: true,
                 }
             })
             return NextResponse.json(allPost)

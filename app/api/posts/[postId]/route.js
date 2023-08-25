@@ -5,7 +5,11 @@ export async function GET(req){
     
     if(req.method){
         try{
-            const content =  await prisma.post.findMany();
+            const content =  await prisma.post.findMany({
+                include:{
+                    comments: true
+                }
+            });
             return NextResponse.json(content)
         }
         catch(error){
