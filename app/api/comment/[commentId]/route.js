@@ -28,19 +28,19 @@ export async function DELETE(req, { params }){
     
     if(req.method){
         try{
-            const { postId } = params
-            await prisma.post.delete({
+            const { commentId } = params
+            await prisma.comment.delete({
                 where:{
-                    id:postId
+                    id: commentId
                 }
             })
             return new NextResponse(
-                { message: 'Post deleted successfully' },
+                { message: 'comment deleted successfully' },
                 { status: 200 })
         }
         catch(error){
             return new NextResponse(
-                { error: 'Error deleting post' },
+                { error: 'Error deleting comment' },
                 { status: 500 }
             )
         }
