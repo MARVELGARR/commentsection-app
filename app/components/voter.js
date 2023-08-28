@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { increment, decrement } from '../redux/features/counter/counterSlice';
 import { useSession } from 'next-auth/react';
 import { getAllPost } from './getAllPost';
 import { toast } from 'react-hot-toast';
+import VotingLoading from './loadingAnimation/votingAnimation';
+
 
 function Voters({ postId, initialCount }) {
   const dispatch = useDispatch();
   const session = useSession();
   const [counts, setCounts] = useState({});
+  const [isVoting, setIsVoting] = useState(false);
 
   const voting = async (e, postId, value) => {
     e.preventDefault();
@@ -16,7 +19,7 @@ function Voters({ postId, initialCount }) {
     if (!session) {
       return console.log("user not signed in");
     }
-
+    setIsVoting(true);
     try {
       const post = await fetch(`/api/posts/${postId}`, {
         method: "PATCH",
@@ -30,6 +33,7 @@ function Voters({ postId, initialCount }) {
         const updatedCount = await post.json(); // Get the updated count from the server response
         setCounts({ ...counts, [postId]: updatedCount.score }); // Update the local state with the updated count for the specific post
         toast.success("voted ")
+        setIsVoting(false);
         console.log("Voted successfully. Updated count:", updatedCount);
       } else {
         toast.error("Voting failed")
@@ -42,6 +46,7 @@ function Voters({ postId, initialCount }) {
   };
 
   const getScore = async (postId) => {
+    await wait(2000)
     try {
       const post = await fetch(`/api/posts/${postId}`, {
         method: "GET",
@@ -73,12 +78,16 @@ function Voters({ postId, initialCount }) {
 
 
     <div className=" -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
-      <div onClick={() => dispatch(increment())} className="font-bold text-slate-400/50" onMouseDown={(e) => voting(e, postId, 1)}>+</div>
-      <div className="rotate-90 text-cyan-950 font-extrabold">{counts[postId]}</div>
-      <div onClick={() => dispatch(decrement())} className="font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => voting(e, postId, -1)}>-</div>
+      <div onClick={() => dispatch(increment())} className="font-bold text-sm text-slate-400/50" onMouseDown={(e) => voting(e, postId, 1)}>+</div>
+        { !isVoting ? (<div className="rotate-90 text-cyan-950 text-sm font-extrabold">{counts[postId]}</div>):(<VotingLoading/>)}
+      <div onClick={() => dispatch(decrement())} className="font-bold text-sm rotate-90 text-slate-400/60" onMouseDown={(e) => voting(e, postId, -1)}>-</div>
     </div>
 
   );
 }
 
 export default Voters;
+
+export function wait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

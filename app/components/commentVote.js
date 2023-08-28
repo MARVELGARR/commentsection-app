@@ -65,10 +65,10 @@ function CommentVote( { commentId } ) {
 
   return (
     <>
-        <div className=" -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
-            <div  className="font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1)}>+</div>
-            <div className="rotate-90 font-extrabold">{counts[commentId]}</div>
-            <div className="font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1)}>-</div>
+        <div className="text-sm w-6 -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
+            <div  className="text-sm font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1)}>+</div>
+            <div className="text-sm rotate-90 font-extrabold">{counts[commentId]}</div>
+            <div className="text-sm font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1)}>-</div>
         </div>
     </>
   )

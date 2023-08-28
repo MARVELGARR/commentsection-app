@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import parseISO from 'date-fns/parseISO';
@@ -9,7 +9,7 @@ import { getAllPost } from './getAllPost';
 import { getAllComments } from './getAllPost';
 import { toast } from 'react-hot-toast';
 import CommentVote from './commentVote';
-
+import VotingLoading from './loadingAnimation/votingAnimation';
 
 
 
@@ -42,6 +42,8 @@ function Feeds() {
     const [currentlyDeletingPostId, setCurrentlyDeletingPostId] = useState(null)
     const [isCommentDeleteOpen, setIsCommentDeleteOpen] = useState({})
     const [currentlyDeletingCommentId, setCurrentlyDeletingCommentId] = useState(null)
+
+    
 
     const fetchData = async () => {
       const formattedPosts = await getAllPost(); // Call the getAllPost function in an async function
@@ -118,7 +120,7 @@ function Feeds() {
     const handleReplyToggle = (id) =>{
         if(currentlyReplyingCommentId === id) {
             setCurrentlyReplyingCommentId(id); //
-            setReplyMode(false);
+            setReplyMode({});
             setReplyMode({...replyMode, mode : replyMode, id: id });
             console.log(replyMode);
         }
@@ -160,25 +162,20 @@ function Feeds() {
         try {
             const response = await fetch(`/api/posts/${postId}`, {
                 method: 'DELETE',
-                headers: {
-                'Content-Type': 'application/json',
-                },
             });
             console.log(postId)
       
             if (response.ok) {
                 fetchData(); // if the deleting of the post was successful re call all the posts
                 toast.success("post deleted successfully");
-                const data = await response.json(); // Parse the response body as JSON
-                console.log('Post was deleted successfully', data); //console log the result
+                console.log('Post was deleted successfully'); //console log the result
             } else {
-                const errorData = await response.json();
                 toast.error(" Post failed to delete") // Parse the error response as JSON
-                console.error('Failed to delete post', errorData);
+                console.error('Failed to delete post');
             }
         } catch (error) {
             toast.error("something went wrong")
-          console.error('Error deleting post', error);
+          console.error('Error deleting post');
         }
     };
 
@@ -186,21 +183,18 @@ function Feeds() {
         try {
             const response = await fetch(`/api/comment/${commentId}`, {
                 method: 'DELETE',
-                headers: {
-                'Content-Type': 'application/json',
-                },
             });
             console.log(commentId)
       
             if (response.ok) {
+                setIsCommentDeleteOpen({})
                 fetchComment(); // if the deleting of the post was successful re call all the posts
-                toast.success("post deleted successfully");
-                const data = await response.json(); // Parse the response body as JSON
-                console.log('Comment was deleted successfully', data); //console log the result
+                toast.success("Comment deleted successfully");
+                console.log('Comment was deleted successfully'); //console log the result
             } else {
-                const errorData = await response.json();
+
                 toast.error(" comment failed to delete") // Parse the error response as JSON
-                console.error('Failed to delete comment', errorData);
+                console.error('Failed to delete comment');
             }
         } catch (error) {
             toast.error("something went wrong")
@@ -305,6 +299,7 @@ function Feeds() {
             })
             if(comments.ok){
                 toast.success("Replied successfull")
+                setReplyMode({});
                 fetchComment();
                 const res = await comments.json()
                 console.log("commented successfully", res)
@@ -400,7 +395,7 @@ function Feeds() {
                                     </div>
                                 ) : (
                                     <div className='flex flex-col justify-between ml-5 items-center'>
-                                        <div className="mt-2 w-full">{feed?.body}</div>
+                                        <div className="mt-2 w-full break-all">{feed?.body}</div>
                                         <div className="flex justify-between h-18 w-full -mb-5">
                                             <Voters postId={feed.id} />
                                             <div className="flex items-center gap-2">
@@ -504,7 +499,10 @@ function Feeds() {
 
                                                                 <div  className=''><span className=" text-purple-900 font-bold">@{comment?.post?.author?.name.split(" ")[0].trim()}</span> <span className=' break-all'>{comment.comment}</span></div>
                                                                     <div className="flex justify-between items-center  h-10 ml-5">
-                                                                    <CommentVote commentId={comment.id} />
+                                                                    <Suspense fallback={<VotingLoading/>}>
+
+                                                                        <CommentVote commentId={comment.id} />
+                                                                    </Suspense>
                                                                     <div className='flex gap-2 items-center'>
 
                                                                         { session?.account?.id !== comment?.author?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
@@ -546,7 +544,7 @@ function Feeds() {
                                                     </div>):(<div></div>)}
                                                 </div>
                                                 { commentReplyMode.mode && commentReplyMode.id == comment.id ? ( <div>
-                                                    <div className=' mt-3 flex gap-2 items-center'>
+                                                    <div className=' mt-3 mb-5 flex gap-2 items-center'>
                                                         <img 
                                                             src={session?.user?.image}
                                                             className='w-8 h-8 rounded-full'
@@ -601,3 +599,4 @@ function Feeds() {
 }
 
 export default Feeds
+

@@ -20,7 +20,7 @@ export default async function Home() {
     redirect("/login?callbackUrl=/")
   }
 
-  
+  await wait(2000)
 
 
   return (
@@ -34,7 +34,9 @@ export default async function Home() {
 
 
 
-
+export function wait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 
 
