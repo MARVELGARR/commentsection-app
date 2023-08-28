@@ -76,11 +76,14 @@ function Voters({ postId, initialCount }) {
 
   return (
 
+    <div className="flex gap-2 items-center">
 
-    <div className=" -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
-      <div onClick={() => dispatch(increment())} className="font-bold text-sm text-slate-400/50" onMouseDown={(e) => voting(e, postId, 1)}>+</div>
-        { !isVoting ? (<div className="rotate-90 text-cyan-950 text-sm font-extrabold">{counts[postId]}</div>):(<VotingLoading/>)}
-      <div onClick={() => dispatch(decrement())} className="font-bold text-sm rotate-90 text-slate-400/60" onMouseDown={(e) => voting(e, postId, -1)}>-</div>
+      <div className=" -rotate-90  flex-col items-center rounded-md shadow-sm p-2 bg-slate-400/50">
+        <div onClick={() => dispatch(increment())} className="font-bold text-sm text-slate-400/50" onMouseDown={(e) => voting(e, postId, 1)}>+</div>
+          <div className="rotate-90 text-cyan-950 text-sm font-extrabold">{counts[postId]}</div>
+        <div onClick={() => dispatch(decrement())} className="font-bold text-sm rotate-90 text-slate-400/60" onMouseDown={(e) => voting(e, postId, -1)}>-</div>
+      </div>
+      <div className="pl-1">{ isVoting ? (<VotingLoading/>):(<div></div>)}</div>  
     </div>
 
   );
