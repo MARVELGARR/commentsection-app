@@ -51,6 +51,7 @@ export async function GET(){
                 include:{
                     author: true,
                     comments: true,
+                    votes: true
                 }
             })
             return NextResponse.json(allPost)

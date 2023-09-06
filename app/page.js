@@ -24,7 +24,7 @@ export default async function Home() {
 
 
   return (
-    <main className="flex w-screen flex-col min-h-screen bg-cyan-50 px-3 ">
+    <main className="flex w-screen flex-col min-h-scree bg-slate-400/10 px-3 ">
       <div className=" w-full  flex flex-col mt-5">
         <Feeds/>
       </div>

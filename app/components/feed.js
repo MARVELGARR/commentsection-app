@@ -117,33 +117,26 @@ function Feeds() {
     };
     
     
-    const handleReplyToggle = (id) =>{
-        if(currentlyReplyingCommentId === id) {
-            setCurrentlyReplyingCommentId(id); //
-            setReplyMode({});
-            setReplyMode({...replyMode, mode : replyMode, id: id });
-            console.log(replyMode);
+    const handleReplyToggle = (id) => {
+        if (currentlyReplyingCommentId === id) {
+          // Close the reply mode if it's already open
+          setReplyMode({ mode: false, id: null });
+          setCurrentlyReplyingCommentId(null);
+        } else {
+          // Open the reply mode for a new comment
+          setReplyMode({ mode: true, id: id });
+          setCurrentlyReplyingCommentId(id);
         }
-        else{
-            setReplyMode((prev)=>!prev);
-            setCurrentlyReplyingCommentId(id);
-            setReplyMode({...replyMode, mode : replyMode, id: id });
-            console.log(replyMode);
-        }
-    }
+    };
 
     const handleCommentReplyToggle = (id) =>{
         if(currentlyCommentReplyingCommentId === id) {
-            setCurrentlyCommentReplyingCommentId(id); //
             setCommentReplyMode(false);
-            setCommentReplyMode({...commentReplyMode, mode : commentReplyMode, id: id });
-            console.log(commentReplyMode);
+            setCommentReplyMode({});
         }
         else{
-            setReplyMode((prev)=>!prev);
+            setCommentReplyMode({ mode : true, id: id });
             setCurrentlyCommentReplyingCommentId(id);
-            setCommentReplyMode({...commentReplyMode, mode : commentReplyMode, id: id });
-            console.log(commentReplyMode);
         }
     }
     const getPostBody = (postId) =>{       
@@ -166,8 +159,9 @@ function Feeds() {
             console.log(postId)
       
             if (response.ok) {
-                fetchData(); // if the deleting of the post was successful re call all the posts
                 toast.success("post deleted successfully");
+                setIsDeleteOpen({})
+                fetchData(); // if the deleting of the post was successful re call all the posts
                 console.log('Post was deleted successfully'); //console log the result
             } else {
                 toast.error(" Post failed to delete") // Parse the error response as JSON
@@ -278,7 +272,7 @@ function Feeds() {
             console.log('post was created successfully', res);
 
           } else {
-                toast.success("Error creating post")
+                toast.error("Error creating post")
                 console.error('Failed to create post', newPost.statusText);
           }
         } catch (error) {
@@ -371,7 +365,7 @@ function Feeds() {
                                     </div>
                                 ):(<div></div>)}
                                 <div className={` ${ !isDeleteOpen.isOpen ? "" : " absolute bg-black/30 inset-0  opacity-50 "}`}></div>
-                        <div postId={feed.id} key={feed.id} className=" flex flex-col gap-2">
+                            <div postId={feed.id} key={feed.id} className=" flex flex-col gap-2">
                             <div className="flex w-full gap-2 shadow-md px-4 py-2 rounded-xl flex-col bg-white text-gray-900">
 
                                 <div className='flex gap-5'>
@@ -381,6 +375,7 @@ function Feeds() {
                                         alt="Author Avatar"
                                     />
                                     <div className="">{feed?.author.name.split(" ")[0].trim()}</div>
+                                    <div>{ session?.account?.id == feed.author.id ? (<div className=" rounded-md bg-violet-800 text-white font-bold px-1 text-sm">You</div>):(<div></div>) }</div>
                                     <div className="">{feed.formattedCreatedAt}</div>
                                 </div>
                                 { editMode.mode && editMode.id == feed.id ? (
@@ -455,7 +450,7 @@ function Feeds() {
                                     </form>
                                 </div>
                             </div>):(<div></div>)}
-                            { feed.comments.length > 0 ? (<div className='flex flex-col  bg-slate-400/50 rounded-md p-1'>
+                            { feed.comments.length > 0 ? (<div className='flex flex-col  bg-slate-400/10 rounded-md p-1'>
                                 
                                 
                                 {comments.map((comment) =>{
@@ -464,7 +459,7 @@ function Feeds() {
                                             {isCommentDeleteOpen.isOpen && currentlyDeletingCommentId == comment.id ? (
                                                 <div className="fixed inset-0 flex items-center justify-center z-10">
                                                     <div className="bg-white p-6 rounded shadow-md">
-                                                        <p className="mb-4">Are you sure you want to delete this item?</p>
+                                                        <p className="mb-4">Are you sure you want to delete this item?<br/> this cannot be undone</p>
                                                         <button onClick={()=> deleteComment(comment?.id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2">
                                                         Delete
                                                         </button>
@@ -478,11 +473,12 @@ function Feeds() {
                                                 <div className={` ${ !isCommentDeleteOpen.isOpen ? " " : " absolute bg-black/10 inset-0  opacity-50 "} `}></div>
                                                 <div className='flex mb-2 ml-5  px-4 rounded-xl shadow-md bg-white flex-col'>
                                                     {feed.id == comment.postId ? (<div className="flex  flex-col gap-3">
-                                                        <div className='flex gap-3'>
+                                                        <div className='flex gap-3 items-center'>
                                                             <img 
                                                                 src={comment?.user?.image}
                                                                 className="w-7 h-7 rounded-full"
                                                             />
+                                                            <div>{ session?.account?.id == comment?.user?.id ? (<div className=" rounded-md bg-violet-800 text-white font-bold px-1 text-sm">You</div>):(<div></div>) }</div>
                                                             <div className=''>{comment?.formattedCreatedAt}</div>
                                                         </div>
                                                         { commentEditMode.mode && commentEditMode.id == comment.id ? (
@@ -505,7 +501,7 @@ function Feeds() {
                                                                     </Suspense>
                                                                     <div className='flex gap-2 items-center'>
 
-                                                                        { session?.account?.id !== comment?.author?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
+                                                                        { session?.account?.id == comment?.user?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
                                                                             <Image
                                                                                 src="/images/edit.png"
                                                                                 alt="edit icon"
@@ -515,7 +511,7 @@ function Feeds() {
                                                                             />
                                                                             <span className='font-bold text-blue-800'>Edit</span>
                                                                         </button>):(<div className=''></div>)}
-                                                                        { session?.account?.id !== comment?.author?.id ? (<button onClick={()=>toggleDeleteComment(comment?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-lg p-2 flex items-center">
+                                                                        { session?.account?.id == comment?.user?.id ? (<button onClick={()=>toggleDeleteComment(comment?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-lg p-2 flex items-center">
                                                                             <Image
                                                                                 src="/images/delete.png"
                                                                                 height={140}
@@ -527,14 +523,14 @@ function Feeds() {
                                                                         </button>) :(
                                                                             <div></div>
                                                                         )}
-                                                                        { session?.account?.id !== comment?.author?.id ? (<button onClick={() => handleCommentReplyToggle(comment?.id)} className="flex gap-2 cursor-pointer">
+                                                                        <button onClick={() => handleCommentReplyToggle(comment?.id)} className="flex gap-2 cursor-pointer">
                                                                             <img
                                                                                 src="/svg/reply.svg"
                                                                                 className='w-3 h-3'
                                                                                 alt="reply icon"
                                                                             />
                                                                             <div className='font-bold text-green-500 text-sm'>Reply</div>
-                                                                        </button>):(<div className=''></div>)}
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
