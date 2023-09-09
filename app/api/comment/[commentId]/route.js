@@ -105,29 +105,107 @@ export async function POST(req, { params }){
 
 export async function PATCH(req, { params }) {
 
-    const session = await getServerSession(authOptions);
     
     if (req.method === 'PATCH') {
         const { commentId } = params;
         const content = await req.json();
-        const { count, comment } = content;
-  
+        const { state, comment } = content;
+        
         try {
-            if (count !== undefined) {
-                const updatePost = await prisma.comment.update({
+            const session = await getServerSession(authOptions);
+
+            const user = await prisma.user.findUnique({
+                where: {
+                  email: session?.user?.email
+                }
+            })
+            if (!user) {
+                return NextResponse.json({ message: 'User not found' });
+            }
+
+            if( state !== undefined ) {
+                
+                const existingVote = await prisma.vote.findFirst({
+                    where: {
+                        userId: user?.id,
+                        commentId: commentId
+                    }
+                })
+
+                if(!existingVote) {
+                    await prisma.vote.create({
+                        data: {
+                            upVote: state,
+                            userId: user.id,
+                            commentId: commentId,
+                        },
+                    });
+                    
+                    const newVote = await prisma.vote.findFirst({
+                        where: {
+                            userId: user.id,
+                            commentId: commentId
+                        }
+                    })
+                    if(newVote.upVote == true){   
+                        await prisma.comment.update({
+                            where: {
+                                id: commentId,
+                            },
+                            data: {
+                                score: {
+                                    increment: 1,
+                                },
+                            },
+                        });
+                    }
+                    else if( newVote.upVote == false){
+                        
+                        await prisma.comment.update({
+                            where: {
+                                id: commentId,
+                            },
+                            data: {
+                                score: {
+                                    decrement: 1,
+                                },
+                            },
+                        });
+                        
+                    }
+                    else{
+                        return NextResponse.json({message: "Invalid state"})
+                    }
+                    return NextResponse.json({ existingVote })
+                }
+
+                if(existingVote && existingVote.upVote === state){
+                    return NextResponse.json({message: "Cannot vote the same direction"})
+                }
+                const scoreIncrement = existingVote.upVote === state ? 0 : (state ? 1 : -1);
+                await prisma.comment.update({
                     where: {
                         id: commentId,
                     },
                     data: {
-                        score: count,
+                        score: {
+                            increment: scoreIncrement,
+                        },
                     },
                 });
+                
+                await prisma.vote.update({
+                    where: {
+                        id: existingVote.id,
+                    },
+                    data: {
+                        upVote: state,
+                    },
+                });
+                
+                const message = state ? "upVote" : "downVote";
+                return NextResponse.json({ message });
 
-                if (!updatePost) {
-                    return NextResponse.json({ message: "No score found" }, { status: 404 });
-                }
-        
-                return NextResponse.json(updatePost);
             } 
             else if (comment !== undefined) {
                 const updatePost = await prisma.comment.update({
@@ -149,7 +227,7 @@ export async function PATCH(req, { params }) {
                 return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
             }
         } catch (error) {
-            return NextResponse.json({ error: "Error updating post", message: error.message }, { status: 500 });
+            return NextResponse.json({ error: "Error updating comment", message: error.message }, { status: 500 });
         }
     }   
     else {

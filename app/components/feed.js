@@ -132,7 +132,7 @@ function Feeds() {
     const handleCommentReplyToggle = (id) =>{
         if(currentlyCommentReplyingCommentId === id) {
             setCommentReplyMode(false);
-            setCommentReplyMode({});
+            setCurrentlyCommentReplyingCommentId(null);
         }
         else{
             setCommentReplyMode({ mode : true, id: id });
@@ -390,8 +390,11 @@ function Feeds() {
                                     </div>
                                 ) : (
                                     <div className='flex flex-col justify-between ml-5 items-center'>
+                                        <div className="lg:flex hidden">
+                                            <Voters postId={feed.id} />
+                                        </div>
                                         <div className="mt-2 w-full break-all">{feed?.body}</div>
-                                        <div className="flex justify-between h-18 w-full -mb-5">
+                                        <div className=" flex justify-between h-18 w-full -mb-5">
                                             <Voters postId={feed.id} />
                                             <div className="flex items-center gap-2">
                                                 { session?.account?.id == feed?.author?.id ? (<button onClick={()=>toggleDeletePost(feed?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-lg p-2 flex items-center">
@@ -450,12 +453,12 @@ function Feeds() {
                                     </form>
                                 </div>
                             </div>):(<div></div>)}
-                            { feed.comments.length > 0 ? (<div className='flex flex-col  bg-slate-400/10 rounded-md p-1'>
+                            { feed.comments.length > 0 ? (<div className='flex flex-col  rounded-md p-1'>
                                 
                                 
                                 {comments.map((comment) =>{
                                     return (
-                                        <>
+                                        <div className='relative'>
                                             {isCommentDeleteOpen.isOpen && currentlyDeletingCommentId == comment.id ? (
                                                 <div className="fixed inset-0 flex items-center justify-center z-10">
                                                     <div className="bg-white p-6 rounded shadow-md">
@@ -470,14 +473,16 @@ function Feeds() {
                                                     </div>
                                                 </div>
                                             ):(<div></div>)}
+                                            <div className=" w-1 h-full bg-slate-400 absolute"></div>
                                                 <div className={` ${ !isCommentDeleteOpen.isOpen ? " " : " absolute bg-black/10 inset-0  opacity-50 "} `}></div>
                                                 <div className='flex mb-2 ml-5  px-4 rounded-xl shadow-md bg-white flex-col'>
                                                     {feed.id == comment.postId ? (<div className="flex  flex-col gap-3">
-                                                        <div className='flex gap-3 items-center'>
+                                                        <div className='flex gap-3 mt-3 items-center'>
                                                             <img 
                                                                 src={comment?.user?.image}
                                                                 className="w-7 h-7 rounded-full"
                                                             />
+                                                            <div>{comment?.user?.name.split(" ")[0].trim()}</div>
                                                             <div>{ session?.account?.id == comment?.user?.id ? (<div className=" rounded-md bg-violet-800 text-white font-bold px-1 text-sm">You</div>):(<div></div>) }</div>
                                                             <div className=''>{comment?.formattedCreatedAt}</div>
                                                         </div>
@@ -540,7 +545,7 @@ function Feeds() {
                                                     </div>):(<div></div>)}
                                                 </div>
                                                 { commentReplyMode.mode && commentReplyMode.id == comment.id ? ( <div>
-                                                    <div className=' mt-3 mb-5 flex gap-2 items-center'>
+                                                    <div className=' ml-10 w-80 mt-4 mb-5 flex gap-2 items-end'>
                                                         <img 
                                                             src={session?.user?.image}
                                                             className='w-8 h-8 rounded-full'
@@ -554,35 +559,31 @@ function Feeds() {
                                                         </form>
                                                     </div>
                                                 </div>):(<div></div>)}
-                                        </>
+                                        </div>
 
                                     )
-
-                                
-                                })}
-                                
-                                
+                                })}            
                             </div>):(<div></div>)}
                         </div>
                         </>
-                    )
-                            
+                    )               
                 })}
             </div>
             <div className=" w-full shadow-md px-4 py-2 rounded-xl  flex-col bg-white ">
                 <form onSubmit={createPost} className="flex w-full justify-start gap-5">
                     <fieldset className="flex w-full flex-col">
 
-                        <textarea  className=" h-24 w-full rounded-lg" onChange={(e)=>setText(e.target.value)} value={text} placeholder='Add a comment'></textarea>
+                        <textarea  className=" h-20 w-full rounded-lg" onChange={(e)=>setText(e.target.value)} value={text} placeholder='Add a comment'></textarea>
                         <div className='flex justify-between mt-5'>
 
                             <img
                                 src={session?.user?.image}
-                                className=" w-12 h-12 rounded-full"
+                                className=" w-10 h-10 rounded-full"
                                 height={140}
                                 width={140}
                             />
-                            <button type="submit" className=" p-2 rounded-xl text-white bg-blue-950/80 w-24">Send</button>
+                            <div className=""></div>
+                            <button type="submit" className=" p-2 h-10 text-sm rounded-xl text-white bg-blue-950/80 ">Send</button>
                         </div>
                     </fieldset>
                 </form>

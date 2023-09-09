@@ -26,7 +26,7 @@ function Login() {
     const {session, status} = useSession({
         redirect: true,
         onAuthenticated() {
-            redirect("/dashboard")
+            redirect("/")
         }
     })
 
@@ -35,7 +35,7 @@ function Login() {
             return
         }
         if(status === "authenticated"){
-            router.push("/dashboard")
+            router.push("/")
         }
         
     },[status])

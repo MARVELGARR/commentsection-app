@@ -9,8 +9,6 @@ import VotingLoading from './loadingAnimation/votingAnimation';
 
 
 function Voters({ postId, initialCount }) {
-  const dispatch = useDispatch();
-  const session = useSession();
   const [counts, setCounts] = useState({});
   const [isVoting, setIsVoting] = useState(false)
 
@@ -47,28 +45,6 @@ function Voters({ postId, initialCount }) {
   }
   
 
-  const voting = async (e, postId, value) => {
-    e.preventDefault();
-  
-    setIsVoting(true);
-  
-    try {
-      // Call the votingState function based on the value
-      if (value === 1) {
-        votingState(e, postId, true);
-
-      }
-      else if(value === -1) {
-        votingState(e, postId, false);
-      }
-  
-      setIsVoting(false);
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.error('Error voting', error);
-      setIsVoting(false); // Make sure to set isVoting to false in case of an error
-    }
-  };
 
 
   const getScore = async (postId) => {

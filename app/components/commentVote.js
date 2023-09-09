@@ -9,33 +9,33 @@ function CommentVote( { commentId } ) {
     const [counts, setCounts] = useState({});
     const [isVoting, setIsVoting] = useState(false);
 
-
-    const commentVote = async (e, commentId, value) =>{
-        e.preventDefault()
-        setIsVoting(true);
-
-        try{
-            const comment = await fetch(`api/comment/${commentId}`,{
-                method: "PATCH",
-                headers:{
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify({ count: counts[commentId] + value })
-            })
-            if (comment.ok) {
-                const updatedCount = await comment.json(); // Get the updated count from the server response
-                setCounts({ ...counts, [commentId]: updatedCount.score }); // Update the local state with the updated count for the specific post
-                setIsVoting(false)
-                toast.success("voted ")
-                console.log("Voted successfully. Updated count:", updatedCount);
-            } else {
-                toast.error("Voting failed")
-                console.error('Failed to vote', comment.status, comment.statusText);
-            }
+    const commentVote = async (e, commentId, state, value) => {
+        e.preventDefault();
+        if (value === 1) {
+          state = true;
         }
-        catch (error) {
-            toast.error("somewhere went wrong")
-            console.error('Error voting', error);
+        else if (value === -1){
+          state = false;
+        }
+    
+        try {
+            const vote = await fetch(`/api/comment/${commentId}`, {
+                method: 'PATCH',
+                headers: {
+                "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ state })
+            });
+      
+            if (vote.ok) {
+                await getScore(commentId);
+                toast.success("Voted successfully");
+            } else {
+                toast.error("Failed to vote. Please try again later.");
+            }
+        } catch (error) {
+            console.error(error); // Log the specific error for debugging
+            toast.error("An error occurred. Please check your connection and try again.");
         }
     }
 
@@ -69,9 +69,9 @@ function CommentVote( { commentId } ) {
   return (
     <div className='flex items-center gap-2'>
         <div className="text-sm -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
-            <div  className="text-sm font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1)}>+</div>
+            <div  className="text-sm font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1, 1)}>+</div>
             <div className="text-sm rotate-90 font-extrabold">{counts[commentId]}</div>
-            <div className="text-sm font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1)}>-</div>
+            <div className="text-sm font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1, -1)}>-</div>
         </div>
         <div className='pl-1'>{ isVoting ? (<VotingLoading/>) : (<div></div>)}</div>
     </div>
