@@ -14,6 +14,7 @@ function Voters({ postId, initialCount }) {
 
   const votingState = async (e, postId, state, value) => {
     e.preventDefault();
+    setIsVoting(true);
     if (value === 1) {
       state = true;
     }
@@ -34,6 +35,7 @@ function Voters({ postId, initialCount }) {
         const res = await vote.json();
         console.log(res);
         await getScore(postId);
+        setIsVoting(false);
         toast.success("Voted successfully");
       } else {
         toast.error("Failed to vote. Please try again later.");
@@ -82,9 +84,9 @@ function Voters({ postId, initialCount }) {
     <div className="flex gap-2 items-center">
 
       <div className=" -rotate-90  flex-col items-center rounded-md shadow-sm p-2 bg-slate-400/50">
-        <div onClick={(e) => votingState(e, postId, 1, 1)} className="font-bold text-sm text-slate-400/50" >+</div>
-          <div className="rotate-90 text-cyan-950 text-sm font-extrabold">{counts[postId]}</div>
-        <div onClick={(e) => votingState(e, postId, -1, -1)} className="font-bold text-sm rotate-90 text-slate-400/60">-</div>
+        <div onClick={(e) => votingState(e, postId, 1, 1)} className="font-bold lg:rotate-90 text-sm text-slate-400/50" >+</div>
+          <div className=" lg:rotate-0 rotate-90 text-cyan-950 text-sm font-extrabold">{counts[postId]}</div>
+        <div onClick={(e) => votingState(e, postId, -1, -1)} className="font-bold lg:rotate-180 lg:mr-[0.35rem] text-sm rotate-90 text-slate-400/60">-</div>
       </div>
       <div className="pl-1">{ isVoting ? (<VotingLoading/>):(<div></div>)}</div>  
     </div>

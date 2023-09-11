@@ -69,7 +69,10 @@ export async function PATCH(req, { params }) {
                         postId: postId
                     }
                 })
-                if(!existingVote) {
+                if (!existingVote) {
+                    // User is voting for the first time
+                    const scoreIncrement = state ? 1 : -1;
+    
                     await prisma.vote.create({
                         data: {
                             upVote: state,
@@ -77,74 +80,47 @@ export async function PATCH(req, { params }) {
                             postId: postId,
                         },
                     });
-                    const newVote = await prisma.vote.findFirst({
+    
+                    await prisma.post.update({
                         where: {
-                            userId: user.id,
-                            postId: postId
-                        }
-                    })
-                    if(newVote.upVote == true){   
-                        await prisma.post.update({
-                            where: {
-                                id: postId,
-                            },
-                            data: {
-                                score: {
-                                    increment: 1,
-                                },
-                            },
-                        });
-                    }
-                    else if( newVote.upVote == false){
-                        
-                        await prisma.post.update({
-                            where: {
-                                id: postId,
-                            },
-                            data: {
-                                score: {
-                                    decrement: 1,
-                                },
-                            },
-                        });
-                        
-                    }
-                    else{
-                        return NextResponse.json({message: "Invalid state"})
-                    }
-                    return NextResponse.json({ existingVote })
-                }
-
-                if(existingVote && existingVote.upVote === state){
-                    return NextResponse.json({message: "Cannot vote the same direction"})
-                }
-                const scoreIncrement = existingVote.upVote === state ? 0 : (state ? 1 : -1);
-                await prisma.post.update({
-                    where: {
-                        id: postId,
-                    },
-                    data: {
-                        score: {
-                            increment: scoreIncrement,
+                            id: postId,
                         },
-                    },
-                });
-                
-                await prisma.vote.update({
-                    where: {
-                        id: existingVote.id,
-                    },
-                    data: {
-                        upVote: state,
-                    },
-                });
-                
-                const message = state ? "upVote" : "downVote";
-                return NextResponse.json({ message });
+                        data: {
+                            score: {
+                            increment: scoreIncrement,
+                            },
+                        },
+                    });
+    
+                    return NextResponse.json({ message: "Vote recorded." });
+                }
+                else {
+                    // User has already voted, check if the vote direction is changing
+                    const scoreChange = state === existingVote.upVote ? 0 : (state ? 2 : -2);
 
-            } 
-            else {
-                return NextResponse.json({ message: "No vote found" }, { status: 400 });
+                    await prisma.vote.update({
+                        where: {
+                            id: existingVote.id,
+                        },
+                        data: {
+                            upVote: state,
+                        },
+                    });
+
+                    // Update comment score
+                    await prisma.post.update({
+                        where: {
+                            id:postId,
+                        },
+                        data: {
+                            score: {
+                            increment: scoreChange,
+                            },
+                        },
+                    });
+
+                    return NextResponse.json({ message: "Vote direction changed." });
+                }
             }
         } catch (error) {
             return NextResponse.json({ error: "Error updating post", message: error }, { status: 500 });
@@ -173,10 +149,12 @@ export async function DELETE(req, { params }){
                   postId,
                 },
             })
+
             return new NextResponse(
                 { message: 'Post deleted successfully' },
                 { status: 200 })
         }
+        
         catch(error){
             return new NextResponse(
                 { error: 'Error deleting post' },

@@ -12,7 +12,7 @@ export const getAllPost = async () => {
         'content-type': 'application/json',
       },
     });
-    if (posts.ok) {
+    if(posts.ok) {
       const res = await posts.json();
       console.log(" post gotten ", res)
 

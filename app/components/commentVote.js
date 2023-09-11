@@ -11,6 +11,7 @@ function CommentVote( { commentId } ) {
 
     const commentVote = async (e, commentId, state, value) => {
         e.preventDefault();
+        setIsVoting(true);
         if (value === 1) {
           state = true;
         }
@@ -30,6 +31,7 @@ function CommentVote( { commentId } ) {
             if (vote.ok) {
                 await getScore(commentId);
                 toast.success("Voted successfully");
+                setIsVoting(false);
             } else {
                 toast.error("Failed to vote. Please try again later.");
             }
@@ -69,9 +71,9 @@ function CommentVote( { commentId } ) {
   return (
     <div className='flex items-center gap-2'>
         <div className="text-sm -rotate-90 rounded-md shadow-sm p-2 bg-slate-400/50">
-            <div  className="text-sm font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1, 1)}>+</div>
-            <div className="text-sm rotate-90 font-extrabold">{counts[commentId]}</div>
-            <div className="text-sm font-bold rotate-90 text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1, -1)}>-</div>
+            <div  className="text-sm lg:rotate-90 font-bold text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, 1, 1)}>+</div>
+            <div className="text-sm lg:rotate-0 rotate-90 font-extrabold">{counts[commentId]}</div>
+            <div className="text-sm font-bold rotate-90 lg:rotate-180 lg:mr-[0.35rem] text-slate-400/60" onMouseDown={(e) => commentVote(e, commentId, -1, -1)}>-</div>
         </div>
         <div className='pl-1'>{ isVoting ? (<VotingLoading/>) : (<div></div>)}</div>
     </div>
