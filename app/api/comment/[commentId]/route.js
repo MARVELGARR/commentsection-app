@@ -34,6 +34,11 @@ export async function DELETE(req, { params }){
                     id: commentId
                 }
             })
+            await prisma.vote.deleteMany({
+                where:{
+                    commentId:commentId
+                }
+            })
             return new NextResponse(
                 { message: 'comment deleted successfully' },
                 { status: 200 })

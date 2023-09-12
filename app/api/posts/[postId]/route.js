@@ -136,20 +136,24 @@ export async function DELETE(req, { params }){
     if(req.method === "DELETE"){
         try{
             const { postId } = params
+
+            await prisma.comment.deleteMany({
+                where: {
+                  postId:postId,
+                },
+            })
+
             await prisma.post.delete({
                 where:{
                     id: postId
                 },
-                include: {
-                    comments: true
+            })
+            await prisma.vote.deleteMany({
+                where:{
+                    postId:postId
                 }
             })
-            await prisma.comment.deleteMany({
-                where: {
-                  postId,
-                },
-            })
-
+            
             return new NextResponse(
                 { message: 'Post deleted successfully' },
                 { status: 200 })
