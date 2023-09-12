@@ -4,10 +4,6 @@ import { useState } from "react"
 import { toast } from "react-hot-toast"
 import { Metadata } from "next"
 
-export const metadata = {
-    title: 'Register',
-    description: 'Register section',
-}
 
 export default function Register() {
 
