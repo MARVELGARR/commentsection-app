@@ -433,7 +433,7 @@ function Feeds() {
                                         </div>
                                         <div className="lg:flex hidden items-center ">
                                             { session?.account?.id == feed?.author?.id ? (<button onClick={()=>toggleDeletePost(feed?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-lg p-2 flex items-center">
-                                                    <Image
+                                                    <img
                                                         src="/images/delete.png"
                                                         height={140}
                                                         width={140}
@@ -455,7 +455,7 @@ function Feeds() {
                                                         <div className='font-bold text-green-500  text-sm'>Reply</div>
                                                     </button>):(<div className=''></div>)}
                                                 { session?.account?.id == feed.author.id ? ( <button onClick={()=>editToggle(feed.id)} className='flex items-center cursor-pointer'>
-                                                        <Image
+                                                        <img
                                                             src="/images/edit.png"
                                                             alt="edit icon"
                                                             height={140}
@@ -595,7 +595,7 @@ function Feeds() {
                                                                     <div className='lg:flex hidden gap-2 items-center'>
 
                                                                         { session?.account?.id == comment?.user?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
-                                                                            <Image
+                                                                            <img
                                                                                 src="/images/edit.png"
                                                                                 alt="edit icon"
                                                                                 height={140}
@@ -605,7 +605,7 @@ function Feeds() {
                                                                             <span className='font-bold text-blue-800'>Edit</span>
                                                                         </button>):(<div className=''></div>)}
                                                                         { session?.account?.id == comment?.user?.id ? (<button onClick={()=>toggleDeleteComment(comment?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-2xl p-2 flex items-center">
-                                                                            <Image
+                                                                            <img
                                                                                 src="/images/delete.png"
                                                                                 height={140}
                                                                                 width={140}
@@ -647,7 +647,7 @@ function Feeds() {
                                                                             <div className='flex lg:hidden gap-2 items-center'>
 
                                                                                 { session?.account?.id == comment?.user?.id ? (<button onClick={()=>editCommentToggle(comment.id)} className='flex items-center cursor-pointer'>
-                                                                                    <Image
+                                                                                    <img
                                                                                         src="/images/edit.png"
                                                                                         alt="edit icon"
                                                                                         height={140}
@@ -657,7 +657,7 @@ function Feeds() {
                                                                                     <span className='font-bold text-blue-800'>Edit</span>
                                                                                 </button>):(<div className=''></div>)}
                                                                                 { session?.account?.id == comment?.user?.id ? (<button onClick={()=>toggleDeleteComment(comment?.id)}  className="text-red-700 bg-slate-400/50 text-sm cursor-pointer rounded-lg p-2 flex items-center">
-                                                                                    <Image
+                                                                                    <img
                                                                                         src="/images/delete.png"
                                                                                         height={140}
                                                                                         width={140}
