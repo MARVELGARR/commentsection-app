@@ -65,6 +65,12 @@ function CommentVote( { commentId } ) {
 
     useEffect(()=>{
         getScore(commentId)
+        const polling = setInterval(() =>{
+            getScore(commentId);
+        }, 6 * 1000)
+        return ()=>{
+        clearInterval(polling);
+        }
     },[])
     
 

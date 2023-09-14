@@ -76,7 +76,12 @@ function Voters({ postId, initialCount }) {
 
   useEffect(() => {
     getScore(postId);
-    
+    const polling = setInterval(() =>{
+      getScore(postId);
+    }, 6 * 1000)
+    return ()=>{
+      clearInterval(polling);
+    }
   }, []);
 
   return (
